@@ -88,6 +88,7 @@ export class Name {
         this.components.splice(i, 1);
     }
 
+    // @methodtype assertion-method
     public assertIsNotOutOfBounds(i: number): void {
         if (i < 0 || i >= this.getNoComponents()) {
             throw new RangeError(`Index ${i} is out of bounds for Name with ${this.getNoComponents()} components.`);
