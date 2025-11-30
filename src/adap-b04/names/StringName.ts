@@ -5,67 +5,96 @@ import { AbstractName } from "./AbstractName";
 export class StringName extends AbstractName {
 
     protected name: string = "";
-    protected noComponents: number = 0;
 
-    constructor(source: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+    constructor(components: string[], delimiter: string = DEFAULT_DELIMITER) {
+        super(delimiter);
+        this.name = this.buildNameFromComponents(components);
+        this.assertClassInvariant();
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+    private buildNameFromComponents(components: string[]): string {
+        const parts = components.map(c => this.escapeComponent(c, DEFAULT_DELIMITER));
+        return parts.join(DEFAULT_DELIMITER);
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+    private parseComponentsFromName(): string[] {
+        if (this.name === "") {
+            return [];
+        }
+        const result: string[] = [];
+        let current = "";
+        let escaped = false;
+
+        for (const ch of this.name) {
+            if (escaped) {
+                current += ch;
+                escaped = false;
+            } else if (ch === ESCAPE_CHARACTER) {
+                escaped = true;
+            } else if (ch === DEFAULT_DELIMITER) {
+                result.push(current);
+                current = "";
+            } else {
+                current += ch;
+            }
+        }
+        result.push(current);
+        return result;
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+    getNoComponents(): number {
+        return this.parseComponentsFromName().length;
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+    getComponent(i: number): string {
+        this.assertValidComponentIndexPrecondition(i);
+        return this.parseComponentsFromName()[i];
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+    setComponent(i: number, c: string): void {
+        this.assertValidComponentIndexPrecondition(i);
+        this.assertMaskedComponentPrecondition(c);
+        const oldN = this.getNoComponents();
+        const components = this.parseComponentsFromName();
+        components[i] = c;
+        this.name = this.buildNameFromComponents(components);
+        this.assertSetComponentPost(oldN, i, c);
+        this.assertClassInvariant();
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+    insert(i: number, c: string): void {
+        this.assertValidInsertIndexPrecondition(i);
+        this.assertMaskedComponentPrecondition(c);
+        const oldN = this.getNoComponents();
+        const components = this.parseComponentsFromName();
+        components.splice(i, 0, c.toString());
+        this.name = this.buildNameFromComponents(components);
+        this.assertInsertPost(oldN, i, c);
+        this.assertClassInvariant();
     }
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+    append(c: string): void {
+        this.assertMaskedComponentPrecondition(c);
+        const oldN = this.getNoComponents();
+        const components = this.parseComponentsFromName();
+        components.push(c.toString());
+        this.name = this.buildNameFromComponents(components);
+        this.assertAppendPost(oldN, c);
+        this.assertClassInvariant();
     }
 
-    public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+    remove(i: number): void {
+        this.assertValidComponentIndexPrecondition(i);
+        const components = this.parseComponentsFromName();
+        const oldN = this.getNoComponents();
+        components.splice(i, 1);
+        this.name = this.buildNameFromComponents(components);
+        this.assertRemovePost(oldN);
+        this.assertClassInvariant();
     }
 
-    public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+    clone(): Name {
+        const components = this.parseComponentsFromName();
+        return new StringName(components, this.delimiter);
     }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
-    }
-
 }

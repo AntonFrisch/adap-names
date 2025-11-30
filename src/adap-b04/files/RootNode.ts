@@ -19,7 +19,7 @@ export class RootNode extends Directory {
     }
 
     public getFullName(): Name {
-        return new StringName("", '/');
+        return new StringName([], '/');
     }
 
     public move(to: Directory): void {

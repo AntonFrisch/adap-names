@@ -32,6 +32,10 @@ export class Link extends Node {
     }
 
     protected ensureTargetNode(target: Node | null): Node {
+        this.assertPrecondition(
+            target !== null,
+            "link must have a target node"
+        );
         const result: Node = this.targetNode as Node;
         return result;
     }
